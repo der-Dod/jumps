@@ -1,0 +1,11 @@
+<resources>
+	<properties>
+    	<property id="multiplier_prop" type="string">1.0</property>
+    </properties>
+    
+    <settings>
+    	<setting propertyKey="@Properties.multiplier_prop" title="@Strings.multiplier_title">
+    		<settingConfig type="alphaNumeric" />
+    	</setting>
+    </settings>
+</resources>

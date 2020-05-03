@@ -23,8 +23,7 @@ class FitContributor
 	hidden var mStepsLap = 0;
 	hidden var mStepsSessionCorrected = 0;
 	hidden var mStepsLapCorrected = 0;
-	hidden var mVertOscField;
-	hidden var mVertOsc;
+
 
 	function initialize(dataField) {
 		mStepsSessionField = dataField.createField(
@@ -39,15 +38,10 @@ class FitContributor
             Fit.DATA_TYPE_UINT32,
             {:mesgType=>Fit.MESG_TYPE_LAP, :units=>Ui.loadResource( Rez.Strings.units )}
         );
-        mVertOscField = dataField.createField(
-            Ui.loadResource( Rez.Strings.label ),
-            VERT_OSC_FIELD_ID,
-            Fit.DATA_TYPE_FLOAT,
-            {:mesgType=>Fit.MESG_TYPE_RECORD, :units=>"mm"}
-        );
         
         mStepsSessionField.setData(0);
         mStepsLapField.setData(0);
+
 	}
 	
 	function onStart(app) {
@@ -101,13 +95,6 @@ class FitContributor
 		    
 		    mStepsSessionCorrected = (mStepsSession * mMultiplier).toNumber();
 		    mStepsLapCorrected = (mStepsLap * mMultiplier).toNumber();
-		    
-		    // get running dynamics and possibly update FIT Contributions
-		    var infoRD = AntPlus.RunningDynamics.getRunningDynamics();
-		    if (infoRD != null && infoRD.verticalOscillation != null) {
-		        mVertOsc = infoRD.verticalOscillation;
-		        mVertOscField.setData(mVertOsc);
-		    }
 		    
 		    // update lap/session FIT Contributions
 		    mStepsSessionField.setData(mStepsSessionCorrected);

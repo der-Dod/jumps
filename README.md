@@ -1,7 +1,10 @@
-# Jumps
+# Jumps <img src="./resources/drawables/launcher_icon.png" alt="drawing" width="60"/>
+
 ## Garmin Connect IQ datafiled for counting jumps during Jump Rope activities
 
 Download at: [Garmin Connect IQ](https://apps.garmin.com/en-US/apps/539e6c9e-a735-45c6-b390-c0bc65c1d65a)
+
+<img src="./docs/iq_graph.png" alt="drawing" width="300"/>
 
 ### Description
 This datafield is based on the open source [PoleSteps to FIT](https://github.com/rgergely/polesteps) steps datafield with a multiplier. The multiplier can be configured through the Connect IQ phone application or the Garmin Express PC software.

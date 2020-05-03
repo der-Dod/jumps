@@ -23,6 +23,7 @@ The original datafield without the multiplier can be downloaded from this locati
 
 ### What’s New
 
+ - v0.0.4 add total jumps to activity summary.
  - v0.0.3 remove vertical oscillation.
  - v0.0.2 save vertical oscillation in FIT file.
  - v0.0.1 Initial release.

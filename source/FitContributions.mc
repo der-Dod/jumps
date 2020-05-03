@@ -5,17 +5,18 @@ using Toybox.Activity;
 using Toybox.AntPlus;
 
 // constants
-const STEPS_SESSION_FIELD_ID = 0;
-const STEPS_LAP_FIELD_ID = 1;
-const VERT_OSC_FIELD_ID = 2;
+const STEPS_SESSION_CHART_ID = 0;
+const STEPS_SESSION_FIELD_ID = 1;
+const STEPS_LAP_FIELD_ID = 2;
 
 class FitContributor
 {
 	// member variables
 	hidden var mMultiplier = 1.0;
 	
+	hidden var mStepsSessionChart = null;
 	hidden var mStepsSessionField = null;
-	hidden var mStepsLapField = null;
+    hidden var mStepsLapField = null;
 	hidden var mTimerRunning = false;
 	
 	hidden var mStepsGlobal = null;
@@ -26,11 +27,17 @@ class FitContributor
 
 
 	function initialize(dataField) {
-		mStepsSessionField = dataField.createField(
+		mStepsSessionChart = dataField.createField(
+            Ui.loadResource( Rez.Strings.label ),
+            STEPS_SESSION_CHART_ID,
+            Fit.DATA_TYPE_UINT32,
+            {:mesgType=>Fit.MESG_TYPE_RECORD, :units=>Ui.loadResource( Rez.Strings.units )}
+        );
+        mStepsSessionField = dataField.createField(
             Ui.loadResource( Rez.Strings.label ),
             STEPS_SESSION_FIELD_ID,
             Fit.DATA_TYPE_UINT32,
-            {:mesgType=>Fit.MESG_TYPE_RECORD, :units=>Ui.loadResource( Rez.Strings.units )}
+            {:mesgType=>Fit.MESG_TYPE_SESSION, :units=>Ui.loadResource( Rez.Strings.units )}
         );
         mStepsLapField = dataField.createField(
             Ui.loadResource( Rez.Strings.label ),
@@ -39,6 +46,7 @@ class FitContributor
             {:mesgType=>Fit.MESG_TYPE_LAP, :units=>Ui.loadResource( Rez.Strings.units )}
         );
         
+        mStepsSessionChart.setData(0);
         mStepsSessionField.setData(0);
         mStepsLapField.setData(0);
 
@@ -97,6 +105,7 @@ class FitContributor
 		    mStepsLapCorrected = (mStepsLap * mMultiplier).toNumber();
 		    
 		    // update lap/session FIT Contributions
+		    mStepsSessionChart.setData(mStepsSessionCorrected);
 		    mStepsSessionField.setData(mStepsSessionCorrected);
 		    mStepsLapField.setData(mStepsLapCorrected);
 	    }

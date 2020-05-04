@@ -2,18 +2,19 @@ using Toybox.WatchUi as Ui;
 using Toybox.FitContributor as Fit;
 using Toybox.ActivityMonitor;
 using Toybox.Activity;
-using Toybox.AntPlus;
+using Toybox.System;
+using Toybox.Time;
 
 // constants
 const STEPS_SESSION_CHART_ID = 0;
 const STEPS_SESSION_FIELD_ID = 1;
 const STEPS_LAP_FIELD_ID = 2;
+const JPM_SESSION_CHART_ID = 3;
+const SPJ_SESSION_CHART_ID = 4;
 
 class FitContributor
 {
 	// member variables
-	hidden var mMultiplier = 1.0;
-	
 	hidden var mStepsSessionChart = null;
 	hidden var mStepsSessionField = null;
     hidden var mStepsLapField = null;
@@ -24,6 +25,13 @@ class FitContributor
 	hidden var mStepsLap = 0;
 	hidden var mStepsSessionCorrected = 0;
 	hidden var mStepsLapCorrected = 0;
+	
+	hidden var mPreviousSteps;
+	hidden var mPreviousTime;
+	hidden var mStepsPerMinute = 0;
+	hidden var mSecondsPerStep = 0;
+	hidden var mJpmSessionChart = null;
+	hidden var mSpjSessionChart = null;
 
 
 	function initialize(dataField) {
@@ -44,6 +52,18 @@ class FitContributor
             STEPS_LAP_FIELD_ID,
             Fit.DATA_TYPE_UINT32,
             {:mesgType=>Fit.MESG_TYPE_LAP, :units=>Ui.loadResource( Rez.Strings.units )}
+        );
+        mJpmSessionChart = dataField.createField(
+            Ui.loadResource( Rez.Strings.jpm_label ),
+            JPM_SESSION_CHART_ID,
+            Fit.DATA_TYPE_UINT32,
+            {:mesgType=>Fit.MESG_TYPE_RECORD, :units=>Ui.loadResource( Rez.Strings.jpm_units )}
+        );
+        mSpjSessionChart = dataField.createField(
+            Ui.loadResource( Rez.Strings.spj_label ),
+            SPJ_SESSION_CHART_ID,
+            Fit.DATA_TYPE_FLOAT,
+            {:mesgType=>Fit.MESG_TYPE_RECORD, :units=>Ui.loadResource( Rez.Strings.spj_units )}
         );
         
         mStepsSessionChart.setData(0);
@@ -67,11 +87,6 @@ class FitContributor
 	        }
         }
         
-        // load the multiplier constant from app properties
-        var multiplier = app.getMultiplier();
-        if (multiplier != null) {
-        	mMultiplier = multiplier;
-        }
     }
 
     function onStop(app) {
@@ -80,37 +95,74 @@ class FitContributor
         app.setProperty(STEPS_LAP_FIELD_ID, mStepsLap);
     }
 	
-	function compute() {
+	function compute(mMultiplier, mField) {
 		if (mTimerRunning) {
 	    	// read current step count
 	    	var info = ActivityMonitor.getInfo();
+	    	// only for test in CIQ Simulator b/c simulate data does not have steps
+	    	// info.steps = Activity.getActivityInfo().elapsedDistance;
+	    	
+	    	var deltaSteps = 0;
+	    	var deltaTime = 1;
+	    	var mMomentTime = new Time.Moment(Time.now().value());
 	    	
 	    	// compute and refresh current step counts (for entire session and individual laps)
 	    	if (info != null && info.steps != null) {
 	    		if (mStepsGlobal != null) {
 			        if (info.steps < mStepsGlobal) { // probably step counter has been reset (e.g., midnight)
-			        	mStepsSession += info.steps;
-			        	mStepsLap += info.steps;
+			        	deltaSteps = info.steps;
 			        } 
 			        else {
-			        	mStepsSession += info.steps - mStepsGlobal;
-			        	mStepsLap += info.steps - mStepsGlobal;
+			        	deltaSteps = info.steps - mStepsGlobal;
 			        }
+			    	mStepsSession += deltaSteps;
+			    	mStepsLap += deltaSteps;
+			    	deltaTime = mMomentTime.value() - mPreviousTime;
+			    	
 		        }
 		        
 		        mStepsGlobal = info.steps;
+		        mPreviousTime = mMomentTime.value();
 		    }
 		    
 		    mStepsSessionCorrected = (mStepsSession * mMultiplier).toNumber();
 		    mStepsLapCorrected = (mStepsLap * mMultiplier).toNumber();
+		    // System.println(deltaSteps+" / "+deltaTime+" * 60 * "+mMultiplier);
+		    mStepsPerMinute = (deltaSteps / deltaTime * 60 * mMultiplier).toNumber();
+		    if (deltaSteps != 0) {
+		    	mSecondsPerStep = (deltaTime / (deltaSteps * mMultiplier)).toFloat();
+		    } else {
+		    	mSecondsPerStep = 0.toFloat();
+		    }		    
+		    // System.println("jumps="+mStepsSessionCorrected+", jpm="+mStepsPerMinute+", spj="+mSecondsPerStep);
+		    
+		    mPreviousTime = mMomentTime.value();
+		    mPreviousSteps = info.steps;
 		    
 		    // update lap/session FIT Contributions
 		    mStepsSessionChart.setData(mStepsSessionCorrected);
 		    mStepsSessionField.setData(mStepsSessionCorrected);
 		    mStepsLapField.setData(mStepsLapCorrected);
+		    mJpmSessionChart.setData(mStepsPerMinute);
+		    mSpjSessionChart.setData(mSecondsPerStep);
+		    
 	    }
-	
-		return mStepsSessionCorrected;
+	    
+	    // return value defined in settings
+	    var valueToReturn;
+	    //Total = default
+	    if (mField == 0) {
+	    	valueToReturn = mStepsSessionCorrected;
+	    // Jumps per Minute
+	    } else if (mField == 1) {
+	        valueToReturn = mStepsPerMinute;
+	    // Seconds per Jump
+	    } else if (mField == 2) {
+	        valueToReturn = mSecondsPerStep.format("%.2f");
+	    } else {
+	    	valueToReturn = mStepsSessionCorrected;
+	    }
+		return valueToReturn;
 	}
         
     // start/resume
@@ -132,4 +184,15 @@ class FitContributor
     	mStepsSession = 0;
     	mStepsLap = 0;
     }
+    
+    // map field value to name
+	function get_name_for_value(val) {
+		var propName_map = {
+			0 => Ui.loadResource(Rez.Strings.field_0),
+			1 => Ui.loadResource(Rez.Strings.field_1),
+			2 => Ui.loadResource(Rez.Strings.field_2)
+		};
+		return propName_map[val];
+	}
+    
 }

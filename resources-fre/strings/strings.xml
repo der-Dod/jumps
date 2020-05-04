@@ -3,4 +3,12 @@
     <string id="units"> </string>
     <string id="label">Sauts</string>
     <string id="multiplier_title">Multiplicateur</string>
+    <string id="field_title">Données affichées</string>
+    <string id="field_0">Sauts</string>
+    <string id="field_1">Sauts/Min.</string>
+    <string id="field_2">Sec./Saut</string>
+    <string id="jpm_units">1/m</string>
+    <string id="jpm_label">Sauts par Minute</string>
+    <string id="spj_units">s</string>
+    <string id="spj_label">Secondes par Saut</string>
 </strings>

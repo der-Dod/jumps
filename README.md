@@ -9,8 +9,8 @@ Download at: [Garmin Connect IQ](https://apps.garmin.com/en-US/apps/539e6c9e-a73
 ### Description
 This datafield is based on the open source [PoleSteps to FIT](https://github.com/rgergely/polesteps) steps datafield with a multiplier. The multiplier can be configured through the Connect IQ phone application or the Garmin Express PC software.
 The differences are:
- - jumps counted instead of steps (jumps = steps, see below)
- - Connect IQ graphs for jumps
+* jumps counted instead of steps (jumps = steps, see below)
+* Connect IQ graphs for jumps
 
 I found out that counting steps while jumping with a rope was exactly the same as counting steps. Therefore the datafield!
 If your steps do not match your jumps, you can still adjust the multiplier.
@@ -23,13 +23,20 @@ This datafield shows the number of steps taken during an activity. It only recor
 PoleSteps can be downloaded here: [PoleSteps to FIT](https://apps.garmin.com/en-US/apps/fc007f07-cac0-4d5d-a411-e4a34840f57e). 
 The original datafield without the multiplier can be downloaded from this location: [Steps to FIT](https://apps.garmin.com/en-US/apps/eb7018d6-3a13-4530-92ec-ed51d1f56e07)
 
+### To Do
+* choose between:
+  * total jumps
+  * jumps per minute
+  * seconds per jump
+* add graphs:
+  * jpm
+  * spj
 
 ### What’s New
+* v0.0.4 add total jumps to activity summary.
+* v0.0.3 remove vertical oscillation.
+* v0.0.2 save vertical oscillation in FIT file.
+* v0.0.1 Initial release.
 
- - v0.0.4 add total jumps to activity summary.
- - v0.0.3 remove vertical oscillation.
- - v0.0.2 save vertical oscillation in FIT file.
- - v0.0.1 Initial release.
 
-
-Icon from [icons8](https://icons8.de/icons/set/jump-rope")
+ Icon from [icons8](https://icons8.de/icons/set/jump-rope")

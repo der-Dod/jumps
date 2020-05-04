@@ -1,4 +1,5 @@
 using Toybox.Application as App;
+using Toybox.System;
 
 class JumpsApp extends App.AppBase {
 
@@ -37,6 +38,18 @@ class JumpsApp extends App.AppBase {
 	        }
 	    }
 	    return value;
+    }
+
+    // return value from user settings without checking
+    function getProp(prop) {
+	    return getProperty(prop);
+    }
+    
+    // not possible to udate label outside of initialize :/
+    // update displayed field from user settings
+    function onSettingsChanged() {
+    	_JumpsView.requestUpdate();
+		_JumpsView.onUpdate();
     }
 
 }

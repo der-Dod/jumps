@@ -26,5 +26,25 @@
         precision="0"
         dataLabel="@Strings.label"
         unitLabel="@Strings.units" />
+        <fitField id="3"
+        displayInChart="true"
+        displayInActivityLaps="false"
+        displayInActivitySummary="false"
+        sortOrder="1"
+        precision="0"
+        dataLabel="@Strings.jpm_label"
+        unitLabel="@Strings.jpm_units"
+        chartTitle="@Strings.jpm_label"
+        fillColor="#51B5DA" />
+        <fitField id="4"
+        displayInChart="true"
+        displayInActivityLaps="false"
+        displayInActivitySummary="false"
+        sortOrder="2"
+        precision="2"
+        dataLabel="@Strings.spj_label"
+        unitLabel="@Strings.spj_units"
+        chartTitle="@Strings.spj_label"
+        fillColor="#A85DD4" />
     </fitContributions>
 </resources>

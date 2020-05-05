@@ -27,6 +27,7 @@ The original datafield without the multiplier can be downloaded from this locati
 
 
 ### What’s New
+* v0.0.6 last 5s average for "jumps per minute" and "seconds per jump" charts.
 * v0.0.5 add "jumps per minute" and "seconds per jump" charts.
 * v0.0.4 add total jumps to activity summary.
 * v0.0.3 remove vertical oscillation.

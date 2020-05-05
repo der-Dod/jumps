@@ -4,6 +4,7 @@ using Toybox.ActivityMonitor;
 using Toybox.Activity;
 using Toybox.System;
 using Toybox.Time;
+using Toybox.Math;
 
 // constants
 const STEPS_SESSION_CHART_ID = 0;
@@ -32,6 +33,9 @@ class FitContributor
 	hidden var mSecondsPerStep = 0;
 	hidden var mJpmSessionChart = null;
 	hidden var mSpjSessionChart = null;
+	
+	hidden var arrayJumps = new [5];
+	hidden var arrayIndex = 0;
 
 
 	function initialize(dataField) {
@@ -99,8 +103,14 @@ class FitContributor
 		if (mTimerRunning) {
 	    	// read current step count
 	    	var info = ActivityMonitor.getInfo();
+	    	
 	    	// only for test in CIQ Simulator b/c simulate data does not have steps
 	    	// info.steps = Activity.getActivityInfo().elapsedDistance;
+	    	/* if (mStepsGlobal != null) {
+	    		info.steps = mStepsGlobal + arrayIndex;
+	    	} else {
+	    		info.steps = arrayIndex;
+	    	} */
 	    	
 	    	var deltaSteps = 0;
 	    	var deltaTime = 1;
@@ -128,14 +138,40 @@ class FitContributor
 		    mStepsSessionCorrected = (mStepsSession * mMultiplier).toNumber();
 		    mStepsLapCorrected = (mStepsLap * mMultiplier).toNumber();
 		    // System.println(deltaSteps+" / "+deltaTime+" * 60 * "+mMultiplier);
+		    
+		    /*
+		    // current value can only be a multiple of 60, needs average over last n seconds
 		    mStepsPerMinute = (deltaSteps / deltaTime * 60 * mMultiplier).toNumber();
 		    if (deltaSteps != 0) {
 		    	mSecondsPerStep = (deltaTime / (deltaSteps * mMultiplier)).toFloat();
 		    } else {
 		    	mSecondsPerStep = 0.toFloat();
-		    }		    
-		    // System.println("jumps="+mStepsSessionCorrected+", jpm="+mStepsPerMinute+", spj="+mSecondsPerStep);
+		    }
+		    // System.println("VAL: jumps="+mStepsSessionCorrected+", jpm="+mStepsPerMinute+", spj="+mSecondsPerStep);
+		    */
 		    
+		    // running average assuming 1Hz data recording
+		    // populate array if null
+		    if  (arrayJumps[arrayIndex] == null) {
+		    	for (var i = arrayIndex; i < arrayJumps.size(); ++i) {
+		    		arrayJumps[i] = deltaSteps;
+		    	}
+		    } else {
+		    	arrayJumps[arrayIndex] = deltaSteps;
+		    }
+		    // System.println("index="+arrayIndex+", array="+arrayJumps);
+		    var avgJumps = mean_not_null(arrayJumps).toFloat();
+		    // System.println("means: math="+Math.mean(arrayJumps)+", user="+avgJumps);
+		    // System.println("average="+avgJumps);
+		    mStepsPerMinute = (avgJumps * 60 * mMultiplier).toNumber();
+		    if (avgJumps != 0) {
+		    	mSecondsPerStep = (1 / (avgJumps * mMultiplier)).toFloat();
+		    } else {
+		    	mSecondsPerStep = 0.toFloat();
+		    }
+		    // System.println("AVG: jumps="+mStepsSessionCorrected+", jpm="+mStepsPerMinute+", spj="+mSecondsPerStep);
+		    
+		    arrayIndex = (arrayIndex + 1) % arrayJumps.size();
 		    mPreviousTime = mMomentTime.value();
 		    mPreviousSteps = info.steps;
 		    
@@ -164,6 +200,26 @@ class FitContributor
 	    }
 		return valueToReturn;
 	}
+        
+    // mean of non null values
+    function mean_not_null(array) {
+        var sum = 0;
+        var j = 0;
+        var ai;
+        for (var i = 0; i < array.size(); ++i) {
+		    ai = array[i].toFloat();
+		    sum += ai;
+		    if (ai != 0.toFloat()) {
+		        ++j;
+		    }
+		}
+		if (j != 0) {
+			var return_val = sum / j;
+			return return_val;
+		} else {
+			return 0;
+		}
+    }
         
     // start/resume
     function onActivityStart() {

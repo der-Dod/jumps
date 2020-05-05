@@ -70,7 +70,6 @@ class FitContributor
             {:mesgType=>Fit.MESG_TYPE_RECORD, :units=>Ui.loadResource( Rez.Strings.spj_units )}
         );
         
-        mStepsSessionChart.setData(0);
         mStepsSessionField.setData(0);
         mStepsLapField.setData(0);
 
@@ -105,7 +104,7 @@ class FitContributor
 	    	var info = ActivityMonitor.getInfo();
 	    	
 	    	// only for test in CIQ Simulator b/c simulate data does not have steps
-	    	// info.steps = Activity.getActivityInfo().elapsedDistance;
+	    	// info.steps = Math.round(Activity.getActivityInfo().elapsedDistance);
 	    	/* if (mStepsGlobal != null) {
 	    		info.steps = mStepsGlobal + arrayIndex;
 	    	} else {
@@ -160,12 +159,13 @@ class FitContributor
 		    	arrayJumps[arrayIndex] = deltaSteps;
 		    }
 		    // System.println("index="+arrayIndex+", array="+arrayJumps);
-		    var avgJumps = mean_not_null(arrayJumps).toFloat();
+		    var avgJumpsMath = Math.mean(arrayJumps).toFloat();
+		    var avgJumpsUser = mean_not_null(arrayJumps).toFloat();
 		    // System.println("means: math="+Math.mean(arrayJumps)+", user="+avgJumps);
 		    // System.println("average="+avgJumps);
-		    mStepsPerMinute = (avgJumps * 60 * mMultiplier).toNumber();
-		    if (avgJumps != 0) {
-		    	mSecondsPerStep = (1 / (avgJumps * mMultiplier)).toFloat();
+		    mStepsPerMinute = (avgJumpsMath * 60 * mMultiplier).toNumber();
+		    if (avgJumpsUser != 0) {
+		    	mSecondsPerStep = (1 / (avgJumpsUser * mMultiplier)).toFloat();
 		    } else {
 		    	mSecondsPerStep = 0.toFloat();
 		    }

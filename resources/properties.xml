@@ -1,6 +1,7 @@
 <resources>
 	<properties>
     	<property id="multiplier_prop" type="string">1.0</property>
+    	<property id="average_prop" type="number">5</property>
     	<property id="field_prop" type="number">0</property>
     </properties>
     
@@ -14,6 +15,9 @@
     		<listEntry value="1">@Rez.Strings.field_1</listEntry>
     		<listEntry value="2">@Rez.Strings.field_2</listEntry>
     	    </settingConfig>
+    	</setting>
+    	<setting propertyKey="@Properties.average_prop" title="@Strings.average_title">
+    		<settingConfig type="numeric" />
     	</setting>
     </settings>
 </resources>

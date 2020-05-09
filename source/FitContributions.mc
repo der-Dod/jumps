@@ -34,9 +34,12 @@ class FitContributor
 	hidden var mJpmSessionChart = null;
 	hidden var mSpjSessionChart = null;
 	
-	hidden var arrayJumps = new [5];
+	hidden var arrayJumps = null;
 	hidden var arrayIndex = 0;
-
+	
+	function set_avg_length(average) {
+		arrayJumps = new [average];
+	}
 
 	function initialize(dataField) {
 		mStepsSessionChart = dataField.createField(
@@ -98,18 +101,30 @@ class FitContributor
         app.setProperty(STEPS_LAP_FIELD_ID, mStepsLap);
     }
 	
-	function compute(mMultiplier, mField) {
+	function compute(mMultiplier, mField, mAverage) {
+	    // initialize average length
+	    if (arrayJumps == null) {
+	        arrayJumps = new [mAverage];
+	    }
+	    // reset array if setting changed
+	    if (mAverage != arrayJumps.size()) {
+	    	arrayJumps = new [mAverage];
+	    	arrayIndex = 0;
+	    }
+	    
 		if (mTimerRunning) {
 	    	// read current step count
 	    	var info = ActivityMonitor.getInfo();
 	    	
 	    	// only for test in CIQ Simulator b/c simulate data does not have steps
-	    	// info.steps = Math.round(Activity.getActivityInfo().elapsedDistance);
+	    	// info.steps = Math.round(Activity.getActivityInfo().elapsedDistance.toFloat());
 	    	/* if (mStepsGlobal != null) {
 	    		info.steps = mStepsGlobal + arrayIndex;
 	    	} else {
 	    		info.steps = arrayIndex;
 	    	} */
+	    	// info.steps = Math.round((Math.sin(Math.rand())*3).abs());
+	    	// System.println("random="+info.steps);
 	    	
 	    	var deltaSteps = 0;
 	    	var deltaTime = 1;
@@ -124,8 +139,8 @@ class FitContributor
 			        else {
 			        	deltaSteps = info.steps - mStepsGlobal;
 			        }
-			    	mStepsSession += deltaSteps;
-			    	mStepsLap += deltaSteps;
+			    	mStepsSession += (deltaSteps * mMultiplier);
+			    	mStepsLap += (deltaSteps * mMultiplier);
 			    	deltaTime = mMomentTime.value() - mPreviousTime;
 			    	
 		        }
@@ -134,8 +149,8 @@ class FitContributor
 		        mPreviousTime = mMomentTime.value();
 		    }
 		    
-		    mStepsSessionCorrected = (mStepsSession * mMultiplier).toNumber();
-		    mStepsLapCorrected = (mStepsLap * mMultiplier).toNumber();
+		    mStepsSessionCorrected = mStepsSession.toNumber();
+		    mStepsLapCorrected = mStepsLap.toNumber();
 		    // System.println(deltaSteps+" / "+deltaTime+" * 60 * "+mMultiplier);
 		    
 		    /*
@@ -158,7 +173,7 @@ class FitContributor
 		    } else {
 		    	arrayJumps[arrayIndex] = deltaSteps;
 		    }
-		    // System.println("index="+arrayIndex+", array="+arrayJumps);
+		    
 		    var avgJumpsMath = Math.mean(arrayJumps).toFloat();
 		    var avgJumpsUser = mean_not_null(arrayJumps).toFloat();
 		    // System.println("means: math="+Math.mean(arrayJumps)+", user="+avgJumps);
@@ -169,7 +184,8 @@ class FitContributor
 		    } else {
 		    	mSecondsPerStep = 0.toFloat();
 		    }
-		    // System.println("AVG: jumps="+mStepsSessionCorrected+", jpm="+mStepsPerMinute+", spj="+mSecondsPerStep);
+		    // System.println(arrayIndex+", "+mMultiplier+", "+mField+", "+mAverage+", j="+mStepsSessionCorrected+", jpm="+mStepsPerMinute+", spj="+mSecondsPerStep);
+		    // System.println(arrayJumps);
 		    
 		    arrayIndex = (arrayIndex + 1) % arrayJumps.size();
 		    mPreviousTime = mMomentTime.value();
@@ -240,15 +256,5 @@ class FitContributor
     	mStepsSession = 0;
     	mStepsLap = 0;
     }
-    
-    // map field value to name
-	function get_name_for_value(val) {
-		var propName_map = {
-			0 => Ui.loadResource(Rez.Strings.field_0),
-			1 => Ui.loadResource(Rez.Strings.field_1),
-			2 => Ui.loadResource(Rez.Strings.field_2)
-		};
-		return propName_map[val];
-	}
     
 }

@@ -4,10 +4,11 @@
     <string id="label">Jumps</string>
     <string id="multiplier_title">Multiplier</string>
     <string id="field_title">Datafield</string>
+    <string id="average_title">Average Timespan (s)</string>
     <string id="field_0">Jumps</string>
     <string id="field_1">Jumps/Min.</string>
     <string id="field_2">Sec./Jump</string>
-    <string id="jpm_units">1/m</string>
+    <string id="jpm_units">jpm</string>
     <string id="jpm_label">Jumps per Minute</string>
     <string id="spj_units">s</string>
     <string id="spj_label">Seconds per Jump</string>

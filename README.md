@@ -4,7 +4,14 @@
 
 Download at: [Garmin Connect IQ](https://apps.garmin.com/en-US/apps/539e6c9e-a735-45c6-b390-c0bc65c1d65a)
 
-<img src="./docs/iq_graph.png" alt="drawing" width="300"/>
+<img src="./docs/iq_graph.png" alt="drawing" height="200"/> <img src="./docs/iq_graphs.png" alt="drawing" height="200"/>
+
+### Setup
+* Copy Cardio activity and rename it to "Jump Rope" (or whatever you´d like)
+* Add Jumps to your Data Screen (please refer to your watch manual: https://support.garmin.com/support/manuals/searchManuals.faces?refresh=true)
+* Start the activity and calibrate the multiplier (jump 100 times and see what´s displayed, then use the formula: multiplier=100/"jumps displayed"
+* Adjust multiplier if necessary
+* Start jumping!
 
 ### Description
 This datafield is based on the open source [PoleSteps to FIT](https://github.com/rgergely/polesteps) steps datafield with a multiplier. The multiplier can be configured through the Connect IQ phone application or the Garmin Express PC software.
@@ -27,6 +34,7 @@ The original datafield without the multiplier can be downloaded from this locati
 
 
 ### What’s New
+* v0.1.1 remove Math import for older devices (e.g. F3-HR), eliminate peaks in jpm.
 * v0.1.0 add timespan setting for averages.
 * v0.0.7 little tweaks for 5s averages.
 * v0.0.6 last 5s average for "jumps per minute" and "seconds per jump" charts.

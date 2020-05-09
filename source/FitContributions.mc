@@ -4,7 +4,6 @@ using Toybox.ActivityMonitor;
 using Toybox.Activity;
 using Toybox.System;
 using Toybox.Time;
-using Toybox.Math;
 
 // constants
 const STEPS_SESSION_CHART_ID = 0;
@@ -171,13 +170,17 @@ class FitContributor
 		    		arrayJumps[i] = deltaSteps;
 		    	}
 		    } else {
-		    	arrayJumps[arrayIndex] = deltaSteps;
+		    	// ignore "jumps" in steps recording (8.3 jps is the WR for most jumps in 30s)
+		        if (deltaSteps < 9) {
+		    		arrayJumps[arrayIndex] = deltaSteps;
+		    	} else {
+		    		arrayJumps[arrayIndex] = 0;
+		    	}
 		    }
 		    
-		    var avgJumpsMath = Math.mean(arrayJumps).toFloat();
+		    var avgJumpsMath = mean(arrayJumps).toFloat();
 		    var avgJumpsUser = mean_not_null(arrayJumps).toFloat();
-		    // System.println("means: math="+Math.mean(arrayJumps)+", user="+avgJumps);
-		    // System.println("average="+avgJumps);
+		    // System.println("means: math="+mean(arrayJumps)+", user="+avgJumps);
 		    mStepsPerMinute = (avgJumpsMath * 60 * mMultiplier).toNumber();
 		    if (avgJumpsUser != 0) {
 		    	mSecondsPerStep = (1 / (avgJumpsUser * mMultiplier)).toFloat();
@@ -216,6 +219,24 @@ class FitContributor
 	    }
 		return valueToReturn;
 	}
+
+    // mean of all values
+    function mean(array) {
+        var sum = 0;
+        var j = 0;
+        var ai;
+        for (var i = 0; i < array.size(); ++i) {
+		    ai = array[i].toFloat();
+		    sum += ai;
+	        ++j;
+		}
+		if (j != 0) {
+			var return_val = sum / j;
+			return return_val;
+		} else {
+			return 0;
+		}
+    }
         
     // mean of non null values
     function mean_not_null(array) {

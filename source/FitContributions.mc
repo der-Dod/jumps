@@ -3,7 +3,6 @@ using Toybox.FitContributor as Fit;
 using Toybox.ActivityMonitor;
 using Toybox.Activity;
 using Toybox.System;
-using Toybox.Time;
 
 // constants
 const STEPS_SESSION_CHART_ID = 0;
@@ -26,8 +25,6 @@ class FitContributor
 	hidden var mStepsSessionCorrected = 0;
 	hidden var mStepsLapCorrected = 0;
 	
-	hidden var mPreviousSteps;
-	hidden var mPreviousTime;
 	hidden var mStepsPerMinute = 0;
 	hidden var mSecondsPerStep = 0;
 	hidden var mJpmSessionChart = null;
@@ -111,23 +108,17 @@ class FitContributor
 	    	arrayIndex = 0;
 	    }
 	    
+	    var valueToReturn = null;
+	    
 		if (mTimerRunning) {
 	    	// read current step count
 	    	var info = ActivityMonitor.getInfo();
 	    	
 	    	// only for test in CIQ Simulator b/c simulate data does not have steps
-	    	// info.steps = Math.round(Activity.getActivityInfo().elapsedDistance.toFloat());
-	    	/* if (mStepsGlobal != null) {
-	    		info.steps = mStepsGlobal + arrayIndex;
-	    	} else {
-	    		info.steps = arrayIndex;
-	    	} */
-	    	// info.steps = Math.round((Math.sin(Math.rand())*3).abs());
-	    	// System.println("random="+info.steps);
+	    	// info.steps = (Activity.getActivityInfo().elapsedDistance).toNumber();
 	    	
 	    	var deltaSteps = 0;
-	    	var deltaTime = 1;
-	    	var mMomentTime = new Time.Moment(Time.now().value());
+	    	var deltaStepsCorrected = 0;
 	    	
 	    	// compute and refresh current step counts (for entire session and individual laps)
 	    	if (info != null && info.steps != null) {
@@ -138,61 +129,52 @@ class FitContributor
 			        else {
 			        	deltaSteps = info.steps - mStepsGlobal;
 			        }
-			    	mStepsSession += (deltaSteps * mMultiplier);
-			    	mStepsLap += (deltaSteps * mMultiplier);
-			    	deltaTime = mMomentTime.value() - mPreviousTime;
-			    	
+			        deltaStepsCorrected = deltaSteps * mMultiplier;
+			        mStepsSession += deltaSteps;
+			        mStepsLap += deltaSteps;
+			        // System.println(mStepsSession+", "+deltaSteps+", "+deltaStepsCorrected+", "+mStepsSessionCorrected);
 		        }
 		        
 		        mStepsGlobal = info.steps;
-		        mPreviousTime = mMomentTime.value();
 		    }
 		    
-		    mStepsSessionCorrected = mStepsSession.toNumber();
-		    mStepsLapCorrected = mStepsLap.toNumber();
-		    // System.println(deltaSteps+" / "+deltaTime+" * 60 * "+mMultiplier);
-		    
-		    /*
-		    // current value can only be a multiple of 60, needs average over last n seconds
-		    mStepsPerMinute = (deltaSteps / deltaTime * 60 * mMultiplier).toNumber();
-		    if (deltaSteps != 0) {
-		    	mSecondsPerStep = (deltaTime / (deltaSteps * mMultiplier)).toFloat();
-		    } else {
-		    	mSecondsPerStep = 0.toFloat();
-		    }
-		    // System.println("VAL: jumps="+mStepsSessionCorrected+", jpm="+mStepsPerMinute+", spj="+mSecondsPerStep);
-		    */
+		    mStepsSessionCorrected = (mStepsSessionCorrected + deltaStepsCorrected).toNumber();
+		    mStepsLapCorrected = (mStepsLapCorrected + deltaStepsCorrected).toNumber();
+		    // System.println(mStepsSession+", "+mStepsSessionCorrected);
 		    
 		    // running average assuming 1Hz data recording
 		    // populate array if null
 		    if  (arrayJumps[arrayIndex] == null) {
 		    	for (var i = arrayIndex; i < arrayJumps.size(); ++i) {
-		    		arrayJumps[i] = deltaSteps;
+		    		arrayJumps[i] = deltaStepsCorrected;
 		    	}
 		    } else {
 		    	// ignore "jumps" in steps recording (8.3 jps is the WR for most jumps in 30s)
-		        if (deltaSteps < 9) {
-		    		arrayJumps[arrayIndex] = deltaSteps;
+		        if (deltaStepsCorrected < 8) {
+		    		arrayJumps[arrayIndex] = deltaStepsCorrected;
 		    	} else {
 		    		arrayJumps[arrayIndex] = 0;
 		    	}
 		    }
 		    
-		    var avgJumpsMath = mean(arrayJumps).toFloat();
-		    var avgJumpsUser = mean_not_null(arrayJumps).toFloat();
-		    // System.println("means: math="+mean(arrayJumps)+", user="+avgJumps);
-		    mStepsPerMinute = (avgJumpsMath * 60 * mMultiplier).toNumber();
+		    var avgJumpsUser = 0;
+		    // if curent value is 0, then user stopped to jump
+		    if (deltaStepsCorrected != 0) {
+		    	// non null average for spj to avoid peaks at beginning
+		    	avgJumpsUser = mean_not_null(arrayJumps).toFloat();
+			}
+		    
+		    mStepsPerMinute = (avgJumpsUser * 60).toNumber();
 		    if (avgJumpsUser != 0) {
-		    	mSecondsPerStep = (1 / (avgJumpsUser * mMultiplier)).toFloat();
+		    	mSecondsPerStep = (1 / (avgJumpsUser)).toFloat();
 		    } else {
 		    	mSecondsPerStep = 0.toFloat();
 		    }
 		    // System.println(arrayIndex+", "+mMultiplier+", "+mField+", "+mAverage+", j="+mStepsSessionCorrected+", jpm="+mStepsPerMinute+", spj="+mSecondsPerStep);
 		    // System.println(arrayJumps);
 		    
+		    // set next index of average array
 		    arrayIndex = (arrayIndex + 1) % arrayJumps.size();
-		    mPreviousTime = mMomentTime.value();
-		    mPreviousSteps = info.steps;
 		    
 		    // update lap/session FIT Contributions
 		    mStepsSessionChart.setData(mStepsSessionCorrected);
@@ -204,59 +186,22 @@ class FitContributor
 	    }
 	    
 	    // return value defined in settings
-	    var valueToReturn;
-	    //Total = default
-	    if (mField == 0) {
-	    	valueToReturn = mStepsSessionCorrected;
-	    // Jumps per Minute
-	    } else if (mField == 1) {
-	        valueToReturn = mStepsPerMinute;
-	    // Seconds per Jump
-	    } else if (mField == 2) {
-	        valueToReturn = mSecondsPerStep.format("%.2f");
-	    } else {
-	    	valueToReturn = mStepsSessionCorrected;
+	    if (valueToReturn == null) {
+		    //Total = default
+		    if (mField == 0) {
+		    	valueToReturn = mStepsSessionCorrected;
+		    // Jumps per Minute
+		    } else if (mField == 1) {
+		        valueToReturn = mStepsPerMinute;
+		    // Seconds per Jump
+		    } else if (mField == 2) {
+		        valueToReturn = mSecondsPerStep.format("%.2f");
+		    } else {
+		    	valueToReturn = mStepsSessionCorrected;
+		    }
 	    }
 		return valueToReturn;
 	}
-
-    // mean of all values
-    function mean(array) {
-        var sum = 0;
-        var j = 0;
-        var ai;
-        for (var i = 0; i < array.size(); ++i) {
-		    ai = array[i].toFloat();
-		    sum += ai;
-	        ++j;
-		}
-		if (j != 0) {
-			var return_val = sum / j;
-			return return_val;
-		} else {
-			return 0;
-		}
-    }
-        
-    // mean of non null values
-    function mean_not_null(array) {
-        var sum = 0;
-        var j = 0;
-        var ai;
-        for (var i = 0; i < array.size(); ++i) {
-		    ai = array[i].toFloat();
-		    sum += ai;
-		    if (ai != 0.toFloat()) {
-		        ++j;
-		    }
-		}
-		if (j != 0) {
-			var return_val = sum / j;
-			return return_val;
-		} else {
-			return 0;
-		}
-    }
         
     // start/resume
     function onActivityStart() {

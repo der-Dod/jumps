@@ -34,6 +34,7 @@ The original datafield without the multiplier can be downloaded from this locati
 
 
 ### What’s New
+* v0.2.0 optimize charts, refactor code, ignore data if more than 8 jps.
 * v0.1.1 remove Math import for older devices (e.g. F3-HR), eliminate peaks in jpm.
 * v0.1.0 add timespan setting for averages.
 * v0.0.7 little tweaks for 5s averages.

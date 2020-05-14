@@ -2,7 +2,7 @@ using Toybox.WatchUi as Ui;
 using Toybox.FitContributor as Fit;
 using Toybox.ActivityMonitor;
 using Toybox.Activity;
-using Toybox.System;
+using Toybox.Application as App;
 
 // constants
 const STEPS_SESSION_CHART_ID = 0;
@@ -10,6 +10,13 @@ const STEPS_SESSION_FIELD_ID = 1;
 const STEPS_LAP_FIELD_ID = 2;
 const JPM_SESSION_CHART_ID = 3;
 const SPJ_SESSION_CHART_ID = 4;
+const JD_SESSION_FIELD_ID = 5;
+
+const MET_FACTOR = 8.130; // =100/12.3 (Jump Effect from 0 to 100, 12.3 is MET max)
+const MET_20_120 = 147.6; // 20min à 120jpm = sum(MET)=12.3*20*60=14760; + factor 10
+
+// only for test in CIQ Simulator
+const DEBUG = false;
 
 class FitContributor
 {
@@ -32,6 +39,15 @@ class FitContributor
 	
 	hidden var arrayJumps = null;
 	hidden var arrayIndex = 0;
+	
+	hidden var mJumpDensityField = null;
+	hidden var secondsElapsed = 0;
+	hidden var secondsJumped = 0;
+	hidden var jumpDensity = 0;
+	hidden var mMetTotal = 0.0f;
+	hidden var mMetAvg = 0.0f;
+	hidden var mJumpingEffect = 0.0f;
+	hidden var mGoalReached = 0;
 	
 	function set_avg_length(average) {
 		arrayJumps = new [average];
@@ -68,9 +84,16 @@ class FitContributor
             Fit.DATA_TYPE_FLOAT,
             {:mesgType=>Fit.MESG_TYPE_RECORD, :units=>Ui.loadResource( Rez.Strings.spj_units )}
         );
+        mJumpDensityField = dataField.createField(
+            Ui.loadResource( Rez.Strings.jd_label ),
+            JD_SESSION_FIELD_ID,
+            Fit.DATA_TYPE_FLOAT,
+            {:mesgType=>Fit.MESG_TYPE_SESSION, :units=>Ui.loadResource( Rez.Strings.jd_units )}
+        );
         
         mStepsSessionField.setData(0);
         mStepsLapField.setData(0);
+        mJumpDensityField.setData(0);
 
 	}
 	
@@ -111,12 +134,11 @@ class FitContributor
 	    var valueToReturn = null;
 	    
 		if (mTimerRunning) {
+			secondsElapsed += 1;
+		
 	    	// read current step count
 	    	var info = ActivityMonitor.getInfo();
-	    	
-	    	// only for test in CIQ Simulator b/c simulate data does not have steps
-	    	// info.steps = (Activity.getActivityInfo().elapsedDistance).toNumber();
-	    	
+	    		    	
 	    	var deltaSteps = 0;
 	    	var deltaStepsCorrected = 0;
 	    	
@@ -132,15 +154,27 @@ class FitContributor
 			        deltaStepsCorrected = deltaSteps * mMultiplier;
 			        mStepsSession += deltaSteps;
 			        mStepsLap += deltaSteps;
-			        // System.println(mStepsSession+", "+deltaSteps+", "+deltaStepsCorrected+", "+mStepsSessionCorrected);
+			        println(DEBUG, mStepsSession+", "+deltaSteps+", "+deltaStepsCorrected+", "+mStepsSessionCorrected);
 		        }
 		        
 		        mStepsGlobal = info.steps;
 		    }
 		    
-		    mStepsSessionCorrected = (mStepsSessionCorrected + deltaStepsCorrected).toNumber();
-		    mStepsLapCorrected = (mStepsLapCorrected + deltaStepsCorrected).toNumber();
-		    // System.println(mStepsSession+", "+mStepsSessionCorrected);
+		    /*
+		    // record total seconds jumped
+		    if (deltaSteps > 0) {
+		    		secondsJumped += 1;
+		    }
+		    if (secondsElapsed != 0) {
+		    	jumpDensity = 100 * secondsJumped.toFloat() / secondsElapsed.toFloat();
+		    } else {
+		    	jumpDensity = 0;
+		    }
+		    */
+		    
+		    mStepsSessionCorrected = (mStepsSession * mMultiplier).toNumber();
+		    mStepsLapCorrected = (mStepsLap * mMultiplier).toNumber();
+		    println(DEBUG, mStepsSession+", "+mStepsSessionCorrected);
 		    
 		    // running average assuming 1Hz data recording
 		    // populate array if null
@@ -170,8 +204,32 @@ class FitContributor
 		    } else {
 		    	mSecondsPerStep = 0.toFloat();
 		    }
-		    // System.println(arrayIndex+", "+mMultiplier+", "+mField+", "+mAverage+", j="+mStepsSessionCorrected+", jpm="+mStepsPerMinute+", spj="+mSecondsPerStep);
-		    // System.println(arrayJumps);
+		    // println(DEBUG, arrayIndex+", "+mMultiplier+", "+mField+", "+mAverage+", j="+mStepsSessionCorrected+", jpm="+mStepsPerMinute+", spj="+mSecondsPerStep);
+		    // println(DEBUG, arrayJumps);
+		    
+		    // Jumping Effect
+		    mMetTotal += met(mStepsPerMinute);
+		    mMetAvg = mMetTotal / secondsElapsed;
+		    if (secondsElapsed != 0) {
+		    	mMetAvg = mMetTotal / secondsElapsed * MET_FACTOR;
+		    } else {
+		    	mMetAvg = 0.0f;
+		    }
+		    mJumpingEffect = mMetTotal / MET_20_120;
+		    // println(DEBUG, "Jpm="+mStepsPerMinute+", MET="+mMetAvg);
+		    println(DEBUG, secondsElapsed+"s, Jpm="+mStepsPerMinute+", METt="+mMetTotal+", JE="+mJumpingEffect);
+		    
+		    /*
+		    if (mGoalReached < 3) { // vibrate 3s
+		    	var mCals = Activity.getActivityInfo().calories;
+		    	println(DEBUG, mCals+"kcal");
+		    	if (mCals >= targetCals) {
+		    		App.getApp().goal_reached();
+		    		valueToReturn = mCals+"kcal REACHED!";
+		    		mGoalReached += 1;
+		    	}
+		    }
+		    */
 		    
 		    // set next index of average array
 		    arrayIndex = (arrayIndex + 1) % arrayJumps.size();
@@ -182,6 +240,7 @@ class FitContributor
 		    mStepsLapField.setData(mStepsLapCorrected);
 		    mJpmSessionChart.setData(mStepsPerMinute);
 		    mSpjSessionChart.setData(mSecondsPerStep);
+		    mJumpDensityField.setData(mJumpingEffect);
 		    
 	    }
 	    
@@ -196,6 +255,9 @@ class FitContributor
 		    // Seconds per Jump
 		    } else if (mField == 2) {
 		        valueToReturn = mSecondsPerStep.format("%.2f");
+		    // Jumping Effect
+		    } else if (mField == 3) {
+		        valueToReturn = mJumpingEffect.format("%.1f");
 		    } else {
 		    	valueToReturn = mStepsSessionCorrected;
 		    }

@@ -45,11 +45,33 @@ class JumpsApp extends App.AppBase {
 	    return getProperty(prop);
     }
     
-    // not possible to udate label outside of initialize :/
+    // not possible to update label outside of initialize :/
     // update displayed field from user settings
     function onSettingsChanged() {
     	_JumpsView.requestUpdate();
 		_JumpsView.onUpdate();
     }
 
+	/*
+	// Play a predefined tone
+	function goal_reached() {
+		if (Attention has :playTone) {
+			Attention.playTone(Attention.TONE_SUCCESS);
+		}
+		if (Attention has :backlight) {
+    		Attention.backlight(true);
+		}
+		if (Attention has :vibrate) {
+			var vibeData =
+    		[
+        	new Attention.VibeProfile(50, 2000), // On for two seconds
+        	new Attention.VibeProfile(0, 2000),  // Off for two seconds
+        	new Attention.VibeProfile(50, 2000), // On for two seconds
+        	new Attention.VibeProfile(0, 2000),  // Off for two seconds
+        	new Attention.VibeProfile(50, 2000)  // on for two seconds
+    		];
+			Attention.vibrate(vibeData);
+		}
+	}
+	*/
 }

@@ -8,8 +8,12 @@
     <string id="field_0">Sauts</string>
     <string id="field_1">Sauts/Min.</string>
     <string id="field_2">Sec./Saut</string>
+    <string id="field_3">Jump. Eff.</string>
     <string id="jpm_units">jpm</string>
     <string id="jpm_label">Sauts par Minute</string>
     <string id="spj_units">s</string>
     <string id="spj_label">Secondes par Saut</string>
+    <string id="jd_units"> </string>
+    <string id="jd_label">Jumping Effect</string>
+    <string id="error_msg">Paramètre non valide</string>
 </strings>

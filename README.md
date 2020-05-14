@@ -16,24 +16,31 @@ Download at: [Garmin Connect IQ](https://apps.garmin.com/en-US/apps/539e6c9e-a73
 ### Description
 This datafield is based on the open source [PoleSteps to FIT](https://github.com/rgergely/polesteps) steps datafield with a multiplier. The multiplier can be configured through the Connect IQ phone application or the Garmin Express PC software.
 The differences are:
-* jumps counted instead of steps (jumps = steps, see below)
+* jumps counted instead of steps
 * Connect IQ graphs for total jumps, jumps per minute, and seconds per jump
-* Choose between 3 types of data to display: jumps, jumps per minute, and seconds per jump (all 3 will be displayed in charts)
+* Jumping Effect (see explanation below)
+* Choose between 4 types of data to display: jumps, jumps per minute, seconds per jump, and jumping effect (also displayed in summary/charts)
 
-I found out that counting steps while jumping with a rope was exactly the same as counting jumps. Therefore the datafield!
-If your steps do not match your jumps, you can still adjust the multiplier.
+##### Jumping Effect: indicates how hard you trained.
+A value of 100 is equivalent to jumping 20 minutes non-stop at a 120+ jpm pace.
+
+You don´t need to be fast to lose weight, all of these are equivalent in term of calories burned:
+ * 20 minutes at 120jpm (MET=12.3)
+ * 21 minutes at 100 jpm (MET=11.8)
+ * 28 minutes at 80 jpm (MET=8.8)
+ 
+This index makes it easier to compare how hard your training was with your friends.
+
+This is based on the MET (Metabolic Equivalent) for rope jumping as a function of the pace.
+[source](https://sites.google.com/site/compendiumofphysicalactivities/Activity-Categories/sports)
 
 #####A big Thank you to rgergely for making his code available!
-
-Description of the original "Steps to FIT" datafield:
-This datafield shows the number of steps taken during an activity. It only records steps when the timer is running. At the end of the session the step data are written into the FIT file for the entire session (total number of steps) and also for the individual laps (number of steps per each lap) so that you can check it in the activity summary on the Garmin Connect website or in the Garmin Connect application.
-
-
 PoleSteps can be downloaded here: [PoleSteps to FIT](https://apps.garmin.com/en-US/apps/fc007f07-cac0-4d5d-a411-e4a34840f57e). 
 The original datafield without the multiplier can be downloaded from this location: [Steps to FIT](https://apps.garmin.com/en-US/apps/eb7018d6-3a13-4530-92ec-ed51d1f56e07)
 
 
 ### What’s New
+* v0.3.0 add jumping effect.
 * v0.2.0 optimize charts, refactor code, ignore data if more than 8 jps.
 * v0.1.1 remove Math import for older devices (e.g. F3-HR), eliminate peaks in jpm.
 * v0.1.0 add timespan setting for averages.

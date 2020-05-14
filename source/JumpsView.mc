@@ -1,5 +1,6 @@
 using Toybox.WatchUi as Ui;
 using Toybox.Application as App;
+using Toybox.Attention;
 
 class JumpsView extends Ui.SimpleDataField 
 {
@@ -32,7 +33,8 @@ class JumpsView extends Ui.SimpleDataField
 		var propName_map = {
 			0 => Ui.loadResource(Rez.Strings.field_0),
 			1 => Ui.loadResource(Rez.Strings.field_1),
-			2 => Ui.loadResource(Rez.Strings.field_2)
+			2 => Ui.loadResource(Rez.Strings.field_2),
+			3 => Ui.loadResource(Rez.Strings.field_3)
 		};
 		return propName_map[val];
 	}
@@ -84,7 +86,8 @@ class JumpsView extends Ui.SimpleDataField
     	field = App.getApp().getProp("field_prop");
     	fieldName = get_name_for_value(field);
     	label = fieldName.toUpper();
-    	multiplier = App.getApp().getMultiplier();
+    	// updating multiplier leads to jump in steps graph -> disabled
+    	// multiplier = App.getApp().getMultiplier();
     	average = App.getApp().getProp("average_prop");
     }
 

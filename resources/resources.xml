@@ -46,5 +46,13 @@
         unitLabel="@Strings.spj_units"
         chartTitle="@Strings.spj_label"
         fillColor="#A85DD4" />
+        <fitField id="5"
+        displayInChart="false"
+        displayInActivityLaps="false"
+        displayInActivitySummary="true"
+        sortOrder="2"
+        precision="1"
+        dataLabel="@Strings.jd_label"
+        unitLabel="@Strings.jd_units" />
     </fitContributions>
 </resources>

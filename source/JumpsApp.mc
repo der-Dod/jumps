@@ -26,8 +26,8 @@ class JumpsApp extends App.AppBase {
     }
     
     // Read in the MULTIPLIER constant from user settings
-    function getMultiplier() {
-	    var value = getProperty("multiplier_prop");
+    function getFloat(prop) {
+	    var value = getProperty(prop);
 	    if (value == null || !(value instanceof Float)) {
 	        if (value != null) {
 	            value = value.toString();
@@ -52,26 +52,4 @@ class JumpsApp extends App.AppBase {
 		_JumpsView.onUpdate();
     }
 
-	/*
-	// Play a predefined tone
-	function goal_reached() {
-		if (Attention has :playTone) {
-			Attention.playTone(Attention.TONE_SUCCESS);
-		}
-		if (Attention has :backlight) {
-    		Attention.backlight(true);
-		}
-		if (Attention has :vibrate) {
-			var vibeData =
-    		[
-        	new Attention.VibeProfile(50, 2000), // On for two seconds
-        	new Attention.VibeProfile(0, 2000),  // Off for two seconds
-        	new Attention.VibeProfile(50, 2000), // On for two seconds
-        	new Attention.VibeProfile(0, 2000),  // Off for two seconds
-        	new Attention.VibeProfile(50, 2000)  // on for two seconds
-    		];
-			Attention.vibrate(vibeData);
-		}
-	}
-	*/
 }

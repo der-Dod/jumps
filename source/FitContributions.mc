@@ -3,6 +3,7 @@ using Toybox.FitContributor as Fit;
 using Toybox.ActivityMonitor;
 using Toybox.Activity;
 using Toybox.Application as App;
+using Toybox.Attention;
 
 // constants
 const STEPS_SESSION_CHART_ID = 0;
@@ -42,12 +43,13 @@ class FitContributor
 	
 	hidden var mJumpDensityField = null;
 	hidden var secondsElapsed = 0;
-	hidden var secondsJumped = 0;
-	hidden var jumpDensity = 0;
+	// hidden var secondsJumped = 0;
+	// hidden var jumpDensity = 0;
 	hidden var mMetTotal = 0.0f;
 	hidden var mMetAvg = 0.0f;
 	hidden var mJumpingEffect = 0.0f;
 	hidden var mGoalReached = 0;
+	hidden var mCals;
 	
 	function set_avg_length(average) {
 		arrayJumps = new [average];
@@ -120,7 +122,7 @@ class FitContributor
         app.setProperty(STEPS_LAP_FIELD_ID, mStepsLap);
     }
 	
-	function compute(mMultiplier, mField, mAverage) {
+	function compute(mMultiplier, mField, mAverage, mCaloryGoal) {
 	    // initialize average length
 	    if (arrayJumps == null) {
 	        arrayJumps = new [mAverage];
@@ -154,7 +156,7 @@ class FitContributor
 			        deltaStepsCorrected = deltaSteps * mMultiplier;
 			        mStepsSession += deltaSteps;
 			        mStepsLap += deltaSteps;
-			        println(DEBUG, mStepsSession+", "+deltaSteps+", "+deltaStepsCorrected+", "+mStepsSessionCorrected);
+			        // println(DEBUG, mStepsSession+", "+deltaSteps+", "+deltaStepsCorrected+", "+mStepsSessionCorrected);
 		        }
 		        
 		        mStepsGlobal = info.steps;
@@ -174,7 +176,7 @@ class FitContributor
 		    
 		    mStepsSessionCorrected = (mStepsSession * mMultiplier).toNumber();
 		    mStepsLapCorrected = (mStepsLap * mMultiplier).toNumber();
-		    println(DEBUG, mStepsSession+", "+mStepsSessionCorrected);
+		    // println(DEBUG, mStepsSession+", "+mStepsSessionCorrected);
 		    
 		    // running average assuming 1Hz data recording
 		    // populate array if null
@@ -217,20 +219,33 @@ class FitContributor
 		    }
 		    mJumpingEffect = mMetTotal / MET_20_120;
 		    // println(DEBUG, "Jpm="+mStepsPerMinute+", MET="+mMetAvg);
-		    println(DEBUG, secondsElapsed+"s, Jpm="+mStepsPerMinute+", METt="+mMetTotal+", JE="+mJumpingEffect);
 		    
-		    /*
-		    if (mGoalReached < 3) { // vibrate 3s
-		    	var mCals = Activity.getActivityInfo().calories;
-		    	println(DEBUG, mCals+"kcal");
-		    	if (mCals >= targetCals) {
-		    		App.getApp().goal_reached();
-		    		valueToReturn = mCals+"kcal REACHED!";
+		    // calory goal
+		    mCals = Activity.getActivityInfo().calories;
+		    if (mGoalReached < 5) { // vibrate 5s
+		    	if (mCals == null) {
+		    		mCals = 0;
+		    	}
+		    	if (mCaloryGoal != 0 && mCals >= mCaloryGoal) {
+		    		valueToReturn = mCaloryGoal+"kcal REACHED!";
 		    		mGoalReached += 1;
+		    		// backlight on & off
+					if (Attention has :backlight && mGoalReached == 1) {
+			    		Attention.backlight(true);
+					}
+					if (Attention has :backlight && mGoalReached == 5) {
+			    		Attention.backlight(false);
+					}
+					if (Attention has :vibrate) {
+						var vibeData =
+			    		[
+			        	new Attention.VibeProfile(100, 500), // On for one seconds
+			    		];
+						Attention.vibrate(vibeData);
+					}
 		    	}
 		    }
-		    */
-		    
+		    		    
 		    // set next index of average array
 		    arrayIndex = (arrayIndex + 1) % arrayJumps.size();
 		    
@@ -241,6 +256,9 @@ class FitContributor
 		    mJpmSessionChart.setData(mStepsPerMinute);
 		    mSpjSessionChart.setData(mSecondsPerStep);
 		    mJumpDensityField.setData(mJumpingEffect);
+
+			// debug log
+			println(DEBUG, secondsElapsed+"s, Jpm="+mStepsPerMinute+", METt="+mMetTotal.format("%.0f")+", JE="+mJumpingEffect.format("%.1f")+", "+mCals+"/"+mCaloryGoal+"kcal");
 		    
 	    }
 	    
@@ -262,7 +280,9 @@ class FitContributor
 		    	valueToReturn = mStepsSessionCorrected;
 		    }
 	    }
+		
 		return valueToReturn;
+
 	}
         
     // start/resume

@@ -1,5 +1,4 @@
 using Toybox.Application as App;
-using Toybox.System;
 
 class JumpsApp extends App.AppBase {
 

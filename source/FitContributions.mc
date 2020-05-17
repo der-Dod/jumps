@@ -2,7 +2,6 @@ using Toybox.WatchUi as Ui;
 using Toybox.FitContributor as Fit;
 using Toybox.ActivityMonitor;
 using Toybox.Activity;
-using Toybox.Application as App;
 using Toybox.Attention;
 
 // constants
@@ -122,7 +121,7 @@ class FitContributor
         app.setProperty(STEPS_LAP_FIELD_ID, mStepsLap);
     }
 	
-	function compute(mMultiplier, mField, mAverage, mCaloryGoal) {
+	function compute(mMultiplier, mField, mAverage, mCaloryGoal, mGoal) {
 	    // initialize average length
 	    if (arrayJumps == null) {
 	        arrayJumps = new [mAverage];
@@ -220,14 +219,26 @@ class FitContributor
 		    mJumpingEffect = mMetTotal / MET_20_120;
 		    // println(DEBUG, "Jpm="+mStepsPerMinute+", MET="+mMetAvg);
 		    
+		    // jumps goal
+		    var mTypeIs = null;
+		    var mTypeUnits = null;
+		    if (mGoal == 0) {
+		    	mTypeIs = mStepsSessionCorrected;
+		    	mTypeUnits = " "+Ui.loadResource( Rez.Strings.goal_0 );
 		    // calory goal
+		    } else if (mGoal == 1) {
+		    	mTypeIs = Activity.getActivityInfo().calories;
+		    	mTypeUnits = "kcal";
+		    	// mTypeUnits = Ui.loadResource( Rez.Strings.goal_1 );
+		    }
+		    
 		    mCals = Activity.getActivityInfo().calories;
 		    if (mGoalReached < 5) { // vibrate 5s
-		    	if (mCals == null) {
-		    		mCals = 0;
+		    	if (mTypeIs == null) {
+		    		mTypeIs = 0;
 		    	}
-		    	if (mCaloryGoal != 0 && mCals >= mCaloryGoal) {
-		    		valueToReturn = mCaloryGoal+"kcal REACHED!";
+		    	if (mCaloryGoal != 0 && mTypeIs >= mCaloryGoal) {
+		    		valueToReturn = mCaloryGoal.format("%.0f")+mTypeUnits+" "+Ui.loadResource( Rez.Strings.goal_reached )+"!";
 		    		mGoalReached += 1;
 		    		// backlight on & off
 					if (Attention has :backlight && mGoalReached == 1) {

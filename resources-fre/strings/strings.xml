@@ -15,6 +15,10 @@
     <string id="spj_label">Secondes par Saut</string>
     <string id="jd_units"> </string>
     <string id="jd_label">Jumping Effect</string>
-    <string id="calory_goal">Objectif de Calories</string>
+    <string id="calory_goal">Objectif</string>
+    <string id="goal_prop">Type d´Objectif</string>
+    <string id="goal_0">Sauts</string>
+    <string id="goal_1">Calories</string>
+    <string id="goal_reached">atteints</string>
     <string id="error_msg">Paramètre non valide</string>
 </strings>

@@ -14,13 +14,11 @@ THIS IS A DATAFIELD, IT DOES NOT APPEAR UNDER APPS.
 * Adjust multiplier if necessary
 * Start jumping!
 
-### Description
-This datafield is based on the open source [PoleSteps to FIT](https://github.com/rgergely/polesteps) steps datafield with a multiplier. The multiplier can be configured through the Connect IQ phone application or the Garmin Express PC software.
-The differences are:
-* jumps counted instead of steps
+### Features
+* Choose between 4 types of data to display: jumps, jumps per minute, seconds per jump, and jumping effect.
 * Connect IQ graphs for total jumps, jumps per minute, and seconds per jump
-* Jumping Effect (see explanation below)
-* Choose between 4 types of data to display: jumps, jumps per minute, seconds per jump, and jumping effect (also displayed in summary/charts)
+* Connect IQ values for steps (total and lap) and jumping effect.
+* Set your goal: choose between jumps or calories. (watch vibrates 5s after goal is reached)
 
 ##### Jumping Effect: indicates how hard you trained.
 A value of 100 is equivalent to jumping 20 minutes non-stop at a 120+ jpm pace.
@@ -35,12 +33,15 @@ This index makes it easier to compare how hard your training was with your frien
 This is based on the MET (Metabolic Equivalent) for rope jumping as a function of the pace.
 [source](https://sites.google.com/site/compendiumofphysicalactivities/Activity-Categories/sports)
 
+### Acknowledgment
+This datafield is based on the open source [PoleSteps to FIT](https://github.com/rgergely/polesteps) steps datafield with a multiplier.
 #####A big Thank you to rgergely for making his code available!
 PoleSteps can be downloaded here: [PoleSteps to FIT](https://apps.garmin.com/en-US/apps/fc007f07-cac0-4d5d-a411-e4a34840f57e). 
 The original datafield without the multiplier can be downloaded from this location: [Steps to FIT](https://apps.garmin.com/en-US/apps/eb7018d6-3a13-4530-92ec-ed51d1f56e07)
 
 
 ### What’s New
+* v0.5.0 choose between jump and calory goal.
 * v0.4.0 add calory goal.
 * v0.3.0 add jumping effect.
 * v0.2.0 optimize charts, refactor code, ignore data if more than 8 jps.
@@ -55,4 +56,4 @@ The original datafield without the multiplier can be downloaded from this locati
 * v0.0.1 Initial release.
 
 
- Icon from [icons8](https://icons8.de/icons/set/jump-rope")
+ Icon from [icons8](https://icons8.de/icons)

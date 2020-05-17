@@ -10,6 +10,8 @@ class JumpsView extends Ui.SimpleDataField
 	hidden var fieldName;
 	hidden var average;
 	hidden var caloryGoal;
+	hidden var goal;
+	hidden var goalName;
 
     // Set the label of the data field here.
     function initialize(app) {
@@ -27,6 +29,8 @@ class JumpsView extends Ui.SimpleDataField
         average = app.getProp("average_prop");        
         
         caloryGoal = app.getProp("calory_goal");
+        goal = app.getProp("goal_prop");
+        goalName = get_name_for_goal_value(goal);
         
     }
 	
@@ -41,6 +45,15 @@ class JumpsView extends Ui.SimpleDataField
 		return propName_map[val];
 	}
 	
+	// map field to goal name
+	function get_name_for_goal_value(val) {
+		var propName_map = {
+			0 => Ui.loadResource(Rez.Strings.goal_0),
+			1 => Ui.loadResource(Rez.Strings.goal_1)
+		};
+		return propName_map[val];
+	}
+	
 	function onStart(app, state) {
         fitContributor.onStart(app);
     }
@@ -51,7 +64,10 @@ class JumpsView extends Ui.SimpleDataField
 
     // Return number of steps. 
     function compute(info) {
-        return fitContributor.compute(multiplier, field, average, caloryGoal);
+        return fitContributor.compute(multiplier, field, average, caloryGoal, goal);
+    }
+    function onLayout() {
+        return fitContributor.compute(multiplier, field, average, caloryGoal, goal);
     }
     
     function onTimerStart() {
@@ -94,6 +110,8 @@ class JumpsView extends Ui.SimpleDataField
     	
     	average = App.getApp().getProp("average_prop").toNumber();
     	caloryGoal = App.getApp().getProp("calory_goal").toFloat();
+    	goal = App.getApp().getProp("goal_prop");
+        goalName = get_name_for_goal_value(goal);
     	
     }
 

@@ -1,5 +1,6 @@
 using Toybox.WatchUi as Ui;
 using Toybox.Application as App;
+using Toybox.Attention;
 
 class JumpsView extends Ui.SimpleDataField 
 {
@@ -9,7 +10,6 @@ class JumpsView extends Ui.SimpleDataField
 	hidden var field;
 	hidden var fieldName;
 	hidden var average;
-	hidden var caloryGoal;
 
     // Set the label of the data field here.
     function initialize(app) {
@@ -17,17 +17,15 @@ class JumpsView extends Ui.SimpleDataField
         fitContributor = new FitContributor(self);
         
         // load the multiplier constant from app properties and set label
-        multiplier = app.getFloat("multiplier_prop");
+        multiplier = app.getMultiplier();
         field = app.getProp("field_prop");
         fieldName = get_name_for_value(field);
         // label = Ui.loadResource( Rez.Strings.label ).toUpper(); // + ((multiplier != null) ? " x" + multiplier.format("%.2f") : "");
         label = fieldName.toUpper();
         
         // set average length for jpm spj charts
-        average = app.getProp("average_prop");        
-        
-        caloryGoal = app.getProp("calory_goal");
-        
+        average = app.getProp("average_prop");
+        // fitContributor.set_avg_length(average);
     }
 	
 	// map field value to name
@@ -51,7 +49,7 @@ class JumpsView extends Ui.SimpleDataField
 
     // Return number of steps. 
     function compute(info) {
-        return fitContributor.compute(multiplier, field, average, caloryGoal);
+        return fitContributor.compute(multiplier, field, average);
     }
     
     function onTimerStart() {
@@ -82,19 +80,15 @@ class JumpsView extends Ui.SimpleDataField
     	fitContributor.onTimerReset();
     }
     
+    // not possible to udate label outside of initialize :/
     // update settings during activity
     function onUpdate() {
-    	// not possible to udate label outside of initialize :/
-    	field = App.getApp().getProp("field_prop").toNumber();
-    	fieldName = get_name_for_value(field).toString();
-    	// label = fieldName.toUpper();
-    	
+    	field = App.getApp().getProp("field_prop");
+    	fieldName = get_name_for_value(field);
+    	label = fieldName.toUpper();
     	// updating multiplier leads to jump in steps graph -> disabled
-    	// multiplier = App.getApp().getFloat("multiplier_prop");
-    	
-    	average = App.getApp().getProp("average_prop").toNumber();
-    	caloryGoal = App.getApp().getProp("calory_goal").toFloat();
-    	
+    	// multiplier = App.getApp().getMultiplier();
+    	average = App.getApp().getProp("average_prop");
     }
 
 }

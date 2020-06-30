@@ -7,7 +7,6 @@ Download at: [Garmin Connect IQ](https://apps.garmin.com/en-US/apps/539e6c9e-a73
 <img src="./docs/iq_graph.png" alt="drawing" height="200"/> <img src="./docs/iq_graphs.png" alt="drawing" height="200"/>
 
 ### Setup
-THIS IS A DATAFIELD, IT DOES NOT APPEAR UNDER APPS.
 * Copy Cardio activity and rename it to "Jump Rope" (or whatever you´d like)
 * Add Jumps to your Data Screen (please refer to your watch manual: https://support.garmin.com/support/manuals/searchManuals.faces?refresh=true)
 * Start the activity and calibrate the multiplier (jump 100 times and see what´s displayed, then use the formula: multiplier=100/"jumps displayed"
@@ -41,7 +40,6 @@ The original datafield without the multiplier can be downloaded from this locati
 
 
 ### What’s New
-* v0.4.0 add calory goal.
 * v0.3.0 add jumping effect.
 * v0.2.0 optimize charts, refactor code, ignore data if more than 8 jps.
 * v0.1.1 remove Math import for older devices (e.g. F3-HR), eliminate peaks in jpm.
